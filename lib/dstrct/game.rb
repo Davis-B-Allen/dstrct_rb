@@ -1,15 +1,17 @@
 require_relative 'game_settings.rb'
+require_relative 'board.rb'
 
 class Game
 
   def initialize
-    puts "initializing game instance"
+    # puts "initializing game instance"
+    @rows = GameSettings::ROWS
+    @columns = GameSettings::COLUMNS
+    @board = Board.new
   end
 
   def play
-    puts "Playing the game"
-    puts GameSettings.num_to_alpha(2)
-    puts GameSettings.alpha_to_num("A")
+    @board.print_board_simple
   end
 
 end

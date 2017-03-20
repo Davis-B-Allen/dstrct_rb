@@ -29,4 +29,9 @@ module GameSettings
   def GameSettings.alpha_to_num(some_str)
     NUM_ALPHA_MAP.key(some_str)
   end
+
+  def GameSettings.convert_coords_to_map_id(row_index, col_index)
+    NUM_ALPHA_MAP[row_index] + (col_index + 1).to_s
+  end
+
 end
