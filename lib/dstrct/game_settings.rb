@@ -1,8 +1,6 @@
 module GameSettings
 
   # For use in helping with readable map IDs
-  NUM_ALPHA_NUMS = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
-  NUM_ALPHA_ALPHAS = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J"]
   NUM_ALPHA_MAP = {
                     0 => "A",
                     1 => "B",
@@ -35,11 +33,11 @@ module GameSettings
   end
 
   def GameSettings.is_valid_map_id_row_char(row_char)
-    NUM_ALPHA_ALPHAS.include?(row_char)
+    NUM_ALPHA_MAP.values.include?(row_char)
   end
 
   def GameSettings.is_valid_map_id_col_num(col_num)
-    NUM_ALPHA_NUMS.include?(col_num)
+    NUM_ALPHA_MAP.keys.include?(col_num)
   end
 
   def GameSettings.convert_valid_map_id_to_coords(valid_map_id)

@@ -5,6 +5,7 @@ class Tile
   attr_accessor :district
   attr_reader :row_index
   attr_reader :col_index
+  attr_reader :map_id
 
   def initialize(row_index, col_index, voter_preference_int)
     @row_index = row_index
