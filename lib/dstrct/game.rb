@@ -20,19 +20,38 @@ class Game
   end
 
   def play
-    puts "playing game; the time is 1209"
+    puts "playing game; the time is 1209\n\n"
     print_rules
     get_player_names_and_party
     next_turn
   end
 
   def print_rules
-    puts "Here we should print the rules of DSTRCT"
+    puts("Welcome to DSTRCT\n\n")
+    puts("DSTRCT is a game about gerrymandering.\n\n")
+    puts("The game board is a #{@rows.to_s} by #{@columns.to_s} grid of " +
+         "voters, each with a political preference: Democrat or Republican.")
+    puts("Each player will assume the role of a political party (Democrat " +
+         "or Republican) and will take turns to divide up the game board " +
+         "into #{GameSettings::MAX_DISTRICTS.to_s} districts, each with a" +
+         "maximum of #{GameSettings::MAX_DISTRICT_SIZE.to_s} voters.")
+    puts("There are exactly the same number of Democratic voters as " +
+         "Republican voters. However, with some clever choice of district " +
+         "boundaries, you can obtain more political power than your opponent.")
+    puts("Within each district the party with the most votes will win the " +
+         "'Congress Point' for that district.")
+    puts("A full district of #{GameSettings::MAX_DISTRICT_SIZE.to_s} voters " +
+         "will earn 1 Congress Point.")
+    puts("A district of fewer than #{GameSettings::MAX_DISTRICT_SIZE.to_s} " +
+         "voters will earn proportionally less than 1 Congress Point.")
+    puts("If there is a tie within a district, the congress points will be " +
+    "split.\n\n")
   end
 
   def get_player_names_and_party
     # TODO actually implement this
     puts "TODO: Capture player names and party affiliation"
+
   end
 
   def is_game_over?
