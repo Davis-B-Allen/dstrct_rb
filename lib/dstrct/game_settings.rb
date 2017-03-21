@@ -34,4 +34,19 @@ module GameSettings
     NUM_ALPHA_MAP[row_index] + (col_index + 1).to_s
   end
 
+  def GameSettings.is_valid_map_id_row_char(row_char)
+    NUM_ALPHA_ALPHAS.include?(row_char)
+  end
+
+  def GameSettings.is_valid_map_id_col_num(col_num)
+    NUM_ALPHA_NUMS.include?(col_num)
+  end
+
+  def GameSettings.convert_valid_map_id_to_coords(valid_map_id)
+    row_char = valid_map_id[0].to_s.upcase
+    row_index = NUM_ALPHA_MAP.key(row_char)
+    col_index = valid_map_id[1].to_i - 1
+    return row_index, col_index
+  end
+
 end

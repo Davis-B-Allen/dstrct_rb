@@ -2,6 +2,10 @@ require_relative 'game_settings.rb'
 require_relative 'tile.rb'
 
 class Board
+  attr_reader :tilegrid
+  attr_reader :districts
+  attr_reader :unplayed_tiles
+  attr_reader :played_tiles
 
   def initialize
     # puts "Board Created!"
@@ -9,8 +13,13 @@ class Board
     @columns = GameSettings::COLUMNS
     @tilegrid = []
     @unplayed_tiles = []
+    @played_tiles = []
     @vertical_borders = []
     @horizontal_borders = []
+    @districts = []
+    # TODO Uncomment and make use of the following
+    # @remnants = []
+    # @remnant_groups = []
     set_up_board
   end
 
@@ -31,6 +40,32 @@ class Board
       @tilegrid << tilegrid_row
       @vertical_borders << vert_row
       @horizontal_borders << hori_row if i < (@rows - 1)
+    end
+  end
+
+  def update_borders(map_id, district)
+    row_index, col_index = GameSettings.convert_valid_map_id_to_coords(map_id)
+    same_district_neighbors = []
+    tile = self.tilegrid[row_index][col_index]
+
+    for pair in [[1, 0], [0, 1], [-1, 0], [0, -1]]
+      row_adjacent = row_index + pair[0]
+      col_adjacent = col_index + pair[1]
+      if 0 <= row_adjacent && row_adjacent < @rows && 0 <= col_adjacent && col_adjacent < @columns
+        tile_adj = @tilegrid[row_adjacent][col_adjacent]
+        if tile_adj.district == district
+          same_district_neighbors << tile_adj
+        end
+      end
+      same_district_neighbors.each do |tile_adjacent|
+        border_row_index = [tile.row_index, tile_adjacent.row_index].min
+        border_col_index = [tile.col_index, tile_adjacent.col_index].min
+        if tile.row_index == tile_adjacent.row_index
+          @vertical_borders[border_row_index][border_col_index] = district
+        elsif tile.col_index == tile_adjacent.col_index
+          @horizontal_borders[border_row_index][border_col_index] = district
+        end
+      end
     end
   end
 
@@ -74,7 +109,7 @@ class Board
         end
         if j < (@rows - 1)
           horizontal = @horizontal_borders[j][k]
-          row4 += horizontal.nil? ? "--------" : "   " + horizontal.to_s + "-   "
+          row4 += horizontal.nil? ? "--------" : "-   " + horizontal.to_s + "   "
         end
       end
       row4 += "-" if j < (@rows - 1)
