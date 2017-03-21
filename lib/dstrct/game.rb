@@ -13,10 +13,10 @@ class Game
     # Uncomment and make use of the following
     # @congress_points_r = 0
     # @congress_points_d = 0
-    # @player_names = []
-    # @p1_affiliation = ""
-    # @p2_affiliation = ""
-    # @player_affiliations = []
+    @player_names = []
+    @p1_affiliation = ""
+    @p2_affiliation = ""
+    @player_affiliations = []
   end
 
   def play
@@ -45,13 +45,55 @@ class Game
     puts("A district of fewer than #{GameSettings::MAX_DISTRICT_SIZE.to_s} " +
          "voters will earn proportionally less than 1 Congress Point.")
     puts("If there is a tie within a district, the congress points will be " +
-    "split.\n\n")
+         "split.\n\n")
   end
 
   def get_player_names_and_party
-    # TODO actually implement this
-    puts "TODO: Capture player names and party affiliation"
-
+    p1_name = p2_name = ""
+    p1_has_affiliation = p2_has_affiliation = false
+    while p1_name == ""
+      print "\nPlayer 1, please enter your name: "
+      p1_name = $stdin.gets.chomp
+      @player_names << p1_name
+    end
+    while !p1_has_affiliation
+      puts("\nPlayer 1, please choose your party.")
+      puts("For Democrat, enter 'D'")
+      puts("For Republican, enter 'R'")
+      puts("To choose a third party, enter 'other'")
+      print "> "
+      @p1_affiliation = $stdin.gets.chomp.downcase
+      if @p1_affiliation == "d" || @p1_affiliation == "r"
+        p1_has_affiliation = true
+        @player_affiliations << @p1_affiliation == "d" ? 0 : 1
+      elsif @p1_affiliation == "other"
+        puts("Sorry, DSTRCT does not support victory for third parties, please choose either Democrat or Republican")
+      else
+        puts("Sorry, didn't understand that")
+      end
+    end
+    while p2_name == ""
+      print "\nPlayer 2, please enter your name: "
+      p2_name = $stdin.gets.chomp
+      @player_names << p2_name
+    end
+    while !p2_has_affiliation
+      puts("\nPlayer 2, please choose your party.")
+      puts("For Republican, enter 'R'") if @p1_affiliation == "d"
+      puts("For Democrat, enter 'D'") if @p1_affiliation == "r"
+      puts("To choose a third party, enter 'other'")
+      print "> "
+      @p2_affiliation = $stdin.gets.chomp.downcase
+      if (@p2_affiliation == "d" && @p1_affiliation != "d") || (@p2_affiliation == "r" && @p1_affiliation != "r")
+        p2_has_affiliation = true
+        @player_affiliations << @p2_affiliation == "d" ? 0 : 1
+      elsif @p2_affiliation == "other"
+        print("Sorry, DSTRCT does not support victory for third parties, please choose either Democrat or Republican")
+      else
+        print("Sorry, didn't understand that")
+      end
+    end
+    puts ""
   end
 
   def is_game_over?
@@ -131,8 +173,7 @@ class Game
         when -1
           puts "Not a valid tile code"
       end
-      # TODO prepend player name / number to input prompt
-      print "Please choose a tile by column letter and row number (e.g. C4): "
+      print "#{@player_names[@whose_turn - 1]} (Player #{@whose_turn}), please choose a tile by column letter and row number (e.g. C4): "
       player_input = $stdin.gets.chomp
       move_is_valid_code = check_valid_move(player_input)
     end
