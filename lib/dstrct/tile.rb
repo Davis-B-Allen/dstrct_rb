@@ -2,6 +2,7 @@ require_relative 'game_settings.rb'
 
 class Tile
   attr_reader :voter_preference
+  attr_reader :voter_preference_int
   attr_accessor :district
   attr_reader :row_index
   attr_reader :col_index

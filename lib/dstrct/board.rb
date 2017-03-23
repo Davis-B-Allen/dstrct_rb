@@ -1,14 +1,12 @@
 require_relative 'game_settings.rb'
 require_relative 'tile.rb'
+require 'set'
 
 class Board
-  attr_reader :tilegrid
   attr_reader :districts
-  attr_reader :unplayed_tiles
-  attr_reader :played_tiles
+  attr_reader :remnant_groups
 
   def initialize
-    # puts "Board Created!"
     @rows = GameSettings::ROWS
     @columns = GameSettings::COLUMNS
     @tilegrid = []
@@ -17,9 +15,8 @@ class Board
     @vertical_borders = []
     @horizontal_borders = []
     @districts = []
-    # TODO Uncomment and make use of the following
-    # @remnants = []
-    # @remnant_groups = []
+    @remnants = []
+    @remnant_groups = []
     set_up_board
   end
 
@@ -91,7 +88,7 @@ class Board
   def update_borders(map_id, district)
     row_index, col_index = GameSettings.convert_valid_map_id_to_coords(map_id)
     same_district_neighbors = []
-    tile = self.tilegrid[row_index][col_index]
+    tile = @tilegrid[row_index][col_index]
 
     for pair in [[1, 0], [0, 1], [-1, 0], [0, -1]]
       row_adjacent = row_index + pair[0]
@@ -121,6 +118,37 @@ class Board
       end
     end
     return false
+  end
+
+  def find_remnant_groups
+    while @unplayed_tiles.length > 0
+      tile = @unplayed_tiles.pop
+      @remnants << tile
+      empty_remnant_set = Set.new
+      remnant_set = find_all_contiguous_undistricted_tiles(tile, empty_remnant_set)
+      remnant_group = remnant_set.to_a
+      @remnant_groups << remnant_group
+    end
+  end
+
+  def find_all_contiguous_undistricted_tiles(tile, remnant_set)
+    remnant_set.add(tile)
+    row_index = tile.row_index
+    col_index = tile.col_index
+    for pair in [[1, 0], [0, 1], [-1, 0], [0, -1]]
+      row_adjacent = row_index + pair[0]
+      col_adjacent = col_index + pair[1]
+      if 0 <= row_adjacent && row_adjacent < @rows && 0 <= col_adjacent && col_adjacent < @columns
+        tile_adj = @tilegrid[row_adjacent][col_adjacent]
+        if @unplayed_tiles.include?(tile_adj)
+          @unplayed_tiles.delete(tile_adj)
+          @remnants << tile_adj
+          recursive_remnant = find_all_contiguous_undistricted_tiles(tile_adj, remnant_set)
+          remnant_group = remnant_group | recursive_remnant
+        end
+      end
+    end
+    return remnant_set
   end
 
   def print_board_simple

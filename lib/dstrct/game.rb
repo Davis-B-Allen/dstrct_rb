@@ -4,15 +4,13 @@ require_relative 'board.rb'
 class Game
 
   def initialize
-    # puts "initializing game instance"
     @rows = GameSettings::ROWS
     @columns = GameSettings::COLUMNS
     @board = Board.new
     @whose_turn = 1
     @num_turns = 0
-    # Uncomment and make use of the following
-    # @congress_points_r = 0
-    # @congress_points_d = 0
+    @congress_points_r = 0
+    @congress_points_d = 0
     @player_names = []
     @p1_affiliation = ""
     @p2_affiliation = ""
@@ -102,11 +100,53 @@ class Game
   end
 
   def evaluate_game_and_print_result
-    # TODO implement this
-  end
+    @board.find_remnant_groups
+    puts("\nRESULTS\n-------\n")
+    @board.print_board
 
-  def find_all_contiguous_undistricted_tiles(tile, remnant_group)
-    # TODO implement this
+    d_count = 0
+    for district in @board.districts
+      d_sum = district.map { |t| t.voter_preference_int }.inject(:+)
+      d_len = district.length
+      d_avg = d_sum.to_f / d_len.to_f
+      d_cong_pt = d_len.to_f / GameSettings::MAX_DISTRICT_SIZE
+      if d_avg > 0.5
+        @congress_points_r += d_cong_pt
+      elsif d_avg == 0.5
+        @congress_points_r += (d_cong_pt / 2.0)
+        @congress_points_d += (d_cong_pt / 2.0)
+      else
+        @congress_points_d += d_cong_pt
+      end
+      # puts "District: #{d_count}\nd_sum: #{d_sum}\nd_len: #{d_len}\nd_avg: #{d_avg}\nd_cong_pt:#{d_cong_pt}\ncongress_points_r: #{@congress_points_r}\ncongress_points_d: #{@congress_points_d}\n\n"
+      d_count += 1
+    end
+    r_count = 0
+    for rg in @board.remnant_groups
+      r_sum = rg.map { |t| t.voter_preference_int }.inject(:+)
+      r_len = rg.length
+      r_avg = r_sum.to_f / r_len.to_f
+      r_cong_pt = r_len.to_f / GameSettings::MAX_DISTRICT_SIZE
+      if r_avg > 0.5
+        @congress_points_r += r_cong_pt
+      elsif r_avg == 0.5
+        @congress_points_r += (r_cong_pt / 2.0)
+        @congress_points_d += (r_cong_pt / 2.0)
+      else
+        @congress_points_d += r_cong_pt
+      end
+      # puts "Remnant: #{r_count}\nr_sum: #{r_sum}\nr_len: #{r_len}\nr_avg: #{r_avg}\nr_cong_pt:#{r_cong_pt}\ncongress_points_r: #{@congress_points_r}\ncongress_points_d: #{@congress_points_d}\n\n"
+      r_count += 1
+    end
+    puts "\nThe Democrats won " + @congress_points_d.to_s + " congress points"
+    puts "The Republicans won " + @congress_points_r.to_s + " congress points\n"
+    if @congress_points_d > @congress_points_r
+      puts "The Democrats win!\n"
+    elsif @congress_points_d == @congress_points_r
+      puts "It's a tie!\n"
+    else
+      puts "The Republicans win!\n"
+    end
   end
 
   def next_turn
@@ -116,9 +156,7 @@ class Game
     @whose_turn = @whose_turn == 1 ? 2 : 1
     @num_turns += 1
     if is_game_over?
-      puts "Game Over!"
-      # TODO uncomment the following and implement it
-      # evaluate_game_and_print_result
+      evaluate_game_and_print_result
     else
       next_turn
     end
@@ -150,7 +188,6 @@ class Game
       print "> "
       player_input = $stdin.gets.chomp
       if !!(player_input =~ /\A[0-9]+\z/)
-        # return player_input.to_i if (0..@board.num_districts-1).include?(player_input.to_i)
         return player_input.to_i if available_districts.include?(player_input.to_i)
       elsif new_district_available && player_input.downcase == "new"
         return @board.num_districts
@@ -173,7 +210,7 @@ class Game
         when -1
           puts "Not a valid tile code"
       end
-      print "#{@player_names[@whose_turn - 1]} (Player #{@whose_turn}), please choose a tile by column letter and row number (e.g. C4): "
+      print "\n#{@player_names[@whose_turn - 1]} (Player #{@whose_turn}), please choose a tile by column letter and row number (e.g. C4): "
       player_input = $stdin.gets.chomp
       move_is_valid_code = check_valid_move(player_input)
     end
